@@ -54,9 +54,18 @@ outputs/    Final memo and presentation
 
 ## Status
 
-**Stage 0 — Project framework and transaction logic**
+**Stage 1 complete — Cohort selected for detailed modelling**
 
-No acquisition recommendation has been made. Company data, scores and model outputs will be added only after the relevant logic and assumptions have been reviewed.
+Cohort is the preferred target in the evidence-backed screen, scoring 85 versus 74 for Avon Technologies and 70 for Chemring.
+
+The first Excel model has been built. It includes editable transaction assumptions, the target screen, offer and sources & uses, illustrative earnings impact, leverage and source documentation. It remains an initial transaction calculator: the next stage is a full Cohort forecast, valuation, purchase accounting and sensitivity analysis.
+
+Key files:
+
+- `research/04_cohort_target_profile.md`
+- `research/05_avon_target_profile.md`
+- `research/06_target_screen.md`
+- `model/build_model.mjs`
 
 ## Disclaimer
 
