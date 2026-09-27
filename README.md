@@ -54,13 +54,13 @@ outputs/    Final memo and presentation
 
 ## Status
 
-**Stage 2A complete — Cohort selected, forecast and valued**
+**Stage 2B complete — Cohort valued and purchase accounting added**
 
 Cohort is the preferred target in the evidence-backed screen, scoring 85 versus 74 for Avon Technologies and 70 for Chemring.
 
-The second Excel model adds a simple five-year Cohort forecast, standalone DCF and synergy-supported maximum price. The base case values Cohort at approximately 1,076p per share on a standalone basis and approximately 1,293p including the full value of modeled cost synergies. The illustrative 1,482p offer is therefore not supported by the current assumptions.
+The third Excel model includes a simple five-year Cohort forecast, DCF, synergy-supported maximum price, purchase-price allocation and offer-price sensitivity. The 30% premium case is approximately 0.1% EPS accretive after purchase-accounting amortisation but approximately 0.5% dilutive in Year 1 after integration costs.
 
-The next stage is simple purchase accounting and offer-price sensitivity analysis.
+The next stage is to consolidate the findings into the final recommendation and interview explanation.
 
 Key files:
 
@@ -68,6 +68,7 @@ Key files:
 - `research/05_avon_target_profile.md`
 - `research/06_target_screen.md`
 - `research/07_cohort_forecast_and_valuation.md`
+- `research/08_purchase_accounting_and_sensitivity.md`
 - `model/build_model.mjs`
 
 ## Disclaimer
