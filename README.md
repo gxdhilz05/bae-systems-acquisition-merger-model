@@ -54,11 +54,13 @@ outputs/    Final memo and presentation
 
 ## Status
 
-**Stage 2B complete — Cohort valued and purchase accounting added**
+**Stage 2C complete — CCA and PTA valuation cross-checks added**
 
 Cohort is the preferred target in the evidence-backed screen, scoring 85 versus 74 for Avon Technologies and 70 for Chemring.
 
-The third Excel model includes a simple five-year Cohort forecast, DCF, synergy-supported maximum price, purchase-price allocation and offer-price sensitivity. The 30% premium case is approximately 0.1% EPS accretive after purchase-accounting amortisation but approximately 0.5% dilutive in Year 1 after integration costs.
+The fourth Excel model includes a simple five-year Cohort forecast, DCF, comparable-company analysis, precedent-transactions analysis, synergy-supported maximum price, purchase-price allocation and offer-price sensitivity. CCA implies approximately 1,489p per share and PTA approximately 1,337p, compared with the standalone DCF of approximately 1,076p.
+
+The 30% premium case is approximately 0.1% EPS accretive after purchase-accounting amortisation but approximately 0.5% dilutive in Year 1 after integration costs. The recommendation remains to pursue Cohort only below approximately 1,300p so BAE retains part of the synergy value.
 
 The next stage is to consolidate the findings into the final recommendation and interview explanation.
 
@@ -69,6 +71,7 @@ Key files:
 - `research/06_target_screen.md`
 - `research/07_cohort_forecast_and_valuation.md`
 - `research/08_purchase_accounting_and_sensitivity.md`
+- `research/09_cca_and_pta.md`
 - `model/build_model.mjs`
 
 ## Disclaimer
