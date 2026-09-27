@@ -2,11 +2,12 @@ import fs from "node:fs/promises";
 import { SpreadsheetFile, Workbook } from "@oai/artifact-tool";
 
 const outputDir = "/workspace/scratch/d8279fcea226/bae-acquisition-merger-model/outputs/d8279fcea226";
-const outputPath = `${outputDir}/bae_cohort_acquisition_model_v1.xlsx`;
+const outputPath = `${outputDir}/bae_cohort_acquisition_model_v2.xlsx`;
 
 const wb = Workbook.create();
 const summary = wb.worksheets.add("Summary");
 const assumptions = wb.worksheets.add("Assumptions");
+const valuation = wb.worksheets.add("Valuation");
 const screening = wb.worksheets.add("Screening");
 const deal = wb.worksheets.add("Deal");
 const earnings = wb.worksheets.add("Earnings");
@@ -71,7 +72,7 @@ function totalStyle(range) {
   range.format.borders = { top: { style: "thin", color: dark }, bottom: { style: "double", color: dark } };
 }
 
-for (const sheet of [summary, assumptions, screening, deal, earnings, leverage, sources]) baseSheet(sheet);
+for (const sheet of [summary, assumptions, valuation, screening, deal, earnings, leverage, sources]) baseSheet(sheet);
 
 // Assumptions
 title(assumptions, "BAE Systems acquisition of Cohort", "Editable assumptions are yellow with blue text. All amounts are £m unless stated.");
@@ -127,9 +128,159 @@ inputStyle(assumptions.getRange("D21:D22"));
 inputStyle(assumptions.getRange("D24:D29"));
 assumptions.getRange("D21:D26").format.numberFormat = "0.0%";
 assumptions.getRange("D27:D29").format.numberFormat = "#,##0.0;(#,##0.0);-";
+
+section(assumptions, "F19:G19", "Simple valuation assumptions");
+assumptions.getRange("F20:G30").values = [
+  ["Assumption", "Base case"],
+  ["FY2026 revenue", 306.4],
+  ["FY2027 revenue growth", 0.08],
+  ["Annual growth fade", 0.01],
+  ["FY2027 operating margin", 0.125],
+  ["Annual margin increase", 0.005],
+  ["D&A as % of revenue", 0.025],
+  ["Capital expenditure as % of revenue", 0.04],
+  ["Working capital as % of revenue increase", 0.10],
+  ["WACC", 0.09],
+  ["Terminal growth", 0.025],
+];
+header(assumptions, "F20:G20");
+inputStyle(assumptions.getRange("G21:G30"));
+assumptions.getRange("G21").format.numberFormat = "#,##0.0;(#,##0.0);-";
+assumptions.getRange("G22:G30").format.numberFormat = "0.0%";
 assumptions.getRange("C32:H34").values = [["How to use this tab", null, null, null, null, null], ["Change only the yellow blue-text cells. The offer, earnings and leverage schedules update automatically.", null, null, null, null, null], ["Base-case inputs are illustrative, not management guidance or a formal offer recommendation.", null, null, null, null, null]];
 assumptions.getRange("C32:H32").format.font = { name: fontFamily, size: 10, bold: true, color: navy };
 assumptions.getRange("C33:H34").format.font = { name: fontFamily, size: 10, italic: true, color: "#666666" };
+
+// Simple Cohort forecast and valuation
+title(valuation, "Cohort standalone valuation", "A five-year DCF with a simple synergy-supported price ceiling. All amounts are £m unless stated.");
+section(valuation, "C7:I7", "Forecast and unlevered free cash flow");
+valuation.getRange("C8:I20").values = [
+  ["Metric", "FY2026A", "FY2027E", "FY2028E", "FY2029E", "FY2030E", "FY2031E"],
+  ["Revenue", null, null, null, null, null, null],
+  ["Revenue growth", null, null, null, null, null, null],
+  ["Adjusted operating margin", null, null, null, null, null, null],
+  ["Adjusted operating profit", null, null, null, null, null, null],
+  ["Cash tax", null, null, null, null, null, null],
+  ["NOPAT", null, null, null, null, null, null],
+  ["D&A", null, null, null, null, null, null],
+  ["Capital expenditure", null, null, null, null, null, null],
+  ["Working capital investment", null, null, null, null, null, null],
+  ["Unlevered free cash flow", null, null, null, null, null, null],
+  ["Discount factor", null, null, null, null, null, null],
+  ["Present value of UFCF", null, null, null, null, null, null],
+];
+header(valuation, "C8:I8");
+valuation.getRange("D9:D12").formulas = [
+  ["='Assumptions'!G21"],
+  ["=D9/270-1"],
+  ["='Assumptions'!G11/'Assumptions'!G21"],
+  ["='Assumptions'!G11"],
+];
+valuation.getRange("E10").formulas = [["='Assumptions'!G22"]];
+valuation.getRange("F10:I10").formulasR1C1 = [["=MAX(RC[-1]-'Assumptions'!R23C7,0)", "=MAX(RC[-1]-'Assumptions'!R23C7,0)", "=MAX(RC[-1]-'Assumptions'!R23C7,0)", "=MAX(RC[-1]-'Assumptions'!R23C7,0)"]];
+valuation.getRange("E9").formulas = [["=D9*(1+E10)"]];
+valuation.getRange("E9:I9").fillRight();
+valuation.getRange("E11").formulas = [["='Assumptions'!G24"]];
+valuation.getRange("F11:I11").formulasR1C1 = [["=MIN(RC[-1]+'Assumptions'!R25C7,15%)", "=MIN(RC[-1]+'Assumptions'!R25C7,15%)", "=MIN(RC[-1]+'Assumptions'!R25C7,15%)", "=MIN(RC[-1]+'Assumptions'!R25C7,15%)"]];
+valuation.getRange("E12").formulas = [["=E9*E11"]];
+valuation.getRange("E12:I12").fillRight();
+valuation.getRange("E13").formulas = [["=-E12*'Assumptions'!$D$26"]];
+valuation.getRange("E13:I13").fillRight();
+valuation.getRange("E14").formulas = [["=E12+E13"]];
+valuation.getRange("E14:I14").fillRight();
+valuation.getRange("E15").formulas = [["=E9*'Assumptions'!$G$26"]];
+valuation.getRange("E15:I15").fillRight();
+valuation.getRange("E16").formulas = [["=-E9*'Assumptions'!$G$27"]];
+valuation.getRange("E16:I16").fillRight();
+valuation.getRange("E17").formulas = [["=-(E9-D9)*'Assumptions'!$G$28"]];
+valuation.getRange("E17:I17").fillRight();
+valuation.getRange("E18").formulas = [["=SUM(E14:E17)"]];
+valuation.getRange("E18:I18").fillRight();
+valuation.getRange("E19").formulas = [["=1/(1+'Assumptions'!$G$29)^(COLUMN()-COLUMN($D$19))"]];
+valuation.getRange("E19:I19").fillRight();
+valuation.getRange("E20").formulas = [["=E18*E19"]];
+valuation.getRange("E20:I20").fillRight();
+crossLink(valuation.getRange("D9:D12"));
+crossLink(valuation.getRange("E10:E11"));
+valuation.getRange("D9:I9").format.numberFormat = "#,##0.0;[Red](#,##0.0);-";
+valuation.getRange("D10:I11").format.numberFormat = "0.0%";
+valuation.getRange("D12:I18").format.numberFormat = "#,##0.0;[Red](#,##0.0);-";
+valuation.getRange("D19:I19").format.numberFormat = "0.000x";
+valuation.getRange("D20:I20").format.numberFormat = "#,##0.0;[Red](#,##0.0);-";
+totalStyle(valuation.getRange("C18:I18"));
+
+section(valuation, "C24:D24", "Standalone DCF");
+valuation.getRange("C25:D37").values = [
+  ["Metric", "Value"],
+  ["Present value of forecast UFCF", null],
+  ["Terminal-year UFCF", null],
+  ["Terminal value", null],
+  ["Present value of terminal value", null],
+  ["Enterprise value", null],
+  ["Net funds", null],
+  ["Equity value", null],
+  ["Diluted shares (m)", null],
+  ["DCF value per share (p)", null],
+  ["Current share price (p)", null],
+  ["Proposed offer price (p)", null],
+  ["Offer premium to DCF", null],
+];
+header(valuation, "C25:D25");
+valuation.getRange("D26:D37").formulas = [
+  ["=SUM(E20:I20)"],
+  ["=I18*(1+'Assumptions'!G30)"],
+  ["=D27/('Assumptions'!G29-'Assumptions'!G30)"],
+  ["=D28*I19"],
+  ["=D26+D29"],
+  ["=-'Assumptions'!G13"],
+  ["=D30+D31"],
+  ["='Assumptions'!G10"],
+  ["=D32/D33*100"],
+  ["='Assumptions'!G9"],
+  ["='Deal'!D11"],
+  ["=D36/D34-1"],
+];
+crossLink(valuation.getRange("D31:D33"));
+crossLink(valuation.getRange("D35:D36"));
+valuation.getRange("D26:D33").format.numberFormat = "#,##0.0;[Red](#,##0.0);-";
+valuation.getRange("D34:D36").format.numberFormat = "#,##0.0p";
+valuation.getRange("D37").format.numberFormat = "0.0%";
+totalStyle(valuation.getRange("C30:D30"));
+totalStyle(valuation.getRange("C32:D34"));
+
+section(valuation, "F24:G24", "Price discipline");
+valuation.getRange("F25:G34").values = [
+  ["Metric", "Value"],
+  ["Run-rate pre-tax synergies", null],
+  ["After-tax synergies", null],
+  ["Present value of synergies", null],
+  ["Maximum supported equity value", null],
+  ["Maximum supported price (p)", null],
+  ["Maximum supported premium", null],
+  ["Proposed premium", null],
+  ["Offer above supported price (p)", null],
+  ["Conclusion", "30% premium is not supported by the base case"],
+];
+header(valuation, "F25:G25");
+valuation.getRange("G26:G33").formulas = [
+  ["='Assumptions'!D27"],
+  ["=G26*(1-'Assumptions'!D26)"],
+  ["=G27/'Assumptions'!G29"],
+  ["=D32+G28"],
+  ["=G29/D33*100"],
+  ["=G30/D35-1"],
+  ["='Assumptions'!D21"],
+  ["=D36-G30"],
+];
+crossLink(valuation.getRange("G26"));
+crossLink(valuation.getRange("G32"));
+valuation.getRange("G26:G29").format.numberFormat = "#,##0.0;[Red](#,##0.0);-";
+valuation.getRange("G30:G31").format.numberFormat = "#,##0.0p";
+valuation.getRange("G31:G32").format.numberFormat = "0.0%";
+valuation.getRange("G33").format.numberFormat = "#,##0.0p";
+valuation.getRange("G34").format.fill = paleRed;
+valuation.getRange("G34").format.font = { name: fontFamily, size: 10, bold: true, color: "#9C0006" };
+totalStyle(valuation.getRange("F29:G30"));
 
 // Screening
 title(screening, "Target screening", "Scores organise judgment; they do not replace the evidence in the research files.");
@@ -324,24 +475,25 @@ leverage.getRange("F10:H13").format.font = { name: fontFamily, size: 10, italic:
 title(summary, "BAE Systems acquisition of Cohort", "Illustrative screening and acquisition model as at 24 September 2026");
 summary.getRange("C7:D7").values = [["Headline", "Value"]];
 header(summary, "C7:D7");
-summary.getRange("C8:D15").values = [["Preferred target", "Cohort"], ["Cohort screening score", null], ["Illustrative offer price (p)", null], ["Illustrative equity purchase price", null], ["Illustrative enterprise value", null], ["Run-rate EPS accretion / (dilution)", null], ["Year 1 EPS impact incl. integration costs", null], ["Pro forma net debt / EBIT", null]];
-summary.getRange("D9:D15").formulas = [["='Screening'!F14"],["='Deal'!D11"],["='Deal'!D13"],["='Deal'!D15"],["='Earnings'!D20"],["='Earnings'!D22"],["='Leverage'!D19"]];
+summary.getRange("C8:D18").values = [["Preferred target", "Cohort"], ["Cohort screening score", null], ["Illustrative offer price (p)", null], ["Illustrative equity purchase price", null], ["Illustrative enterprise value", null], ["Run-rate EPS accretion / (dilution)", null], ["Year 1 EPS impact incl. integration costs", null], ["Pro forma net debt / EBIT", null], ["Standalone DCF value (p)", null], ["Maximum supported price incl. synergies (p)", null], ["Recommendation", "Pursue only below the supported price"]];
+summary.getRange("D9:D17").formulas = [["='Screening'!F14"],["='Deal'!D11"],["='Deal'!D13"],["='Deal'!D15"],["='Earnings'!D20"],["='Earnings'!D22"],["='Leverage'!D19"],["='Valuation'!D34"],["='Valuation'!G30"]];
 summary.getRange("D9").format.numberFormat = "0";
 summary.getRange("D10").format.numberFormat = "#,##0.0p";
 summary.getRange("D11:D12").format.numberFormat = "#,##0.0;[Red](#,##0.0);-";
 summary.getRange("D13:D14").format.numberFormat = "0.0%";
 summary.getRange("D15").format.numberFormat = "0.00x";
-summary.getRange("D8:D15").format.fill = paleBlue;
-summary.getRange("C8:C15").format.font = { name: fontFamily, size: 10, bold: true, color: dark };
+summary.getRange("D16:D17").format.numberFormat = "#,##0.0p";
+summary.getRange("D8:D18").format.fill = paleBlue;
+summary.getRange("C8:C18").format.font = { name: fontFamily, size: 10, bold: true, color: dark };
 summary.getRange("F8:H15").values = [
   ["Current conclusion", null, null],
   ["Cohort provides the clearest link between specialist products and BAE platforms.", null, null],
   ["The proposed ownership model should preserve subsidiary autonomy.", null, null],
   ["The base case includes cost synergies but no revenue synergies.", null, null],
-  ["EPS accretion alone does not establish value creation.", null, null],
-  ["Purchase-accounting amortisation is not yet modelled.", null, null],
+  ["The standalone DCF is below the proposed 30% premium offer.", null, null],
+  ["Run-rate synergies support a lower price, but not 1,482p in the base case.", null, null],
   ["Cash conversion, customer neutrality and regulatory approvals require diligence.", null, null],
-  ["Next step: forecast Cohort and add valuation and purchase accounting.", null, null],
+  ["Next step: add simple purchase accounting and offer-price sensitivities.", null, null],
 ];
 summary.getRange("F8:H8").format.fill = navy;
 summary.getRange("F8:H8").format.font = { name: fontFamily, size: 10, bold: true, color: "#FFFFFF" };
@@ -354,7 +506,7 @@ summary.getRange("C20:E24").values = [
   ["Price discipline", "A high premium can absorb strategic benefits.", "30% premium is illustrative."],
   ["Autonomy", "Cohort's operating model supports agility and retention.", "Light-touch ownership assumed."],
   ["Customer neutrality", "Other primes may reduce purchases from a BAE-owned supplier.", "No revenue synergy included."],
-  ["Cash conversion", "FY2026 receivables reduced operating cash generation.", "Target forecast not yet built."],
+  ["Cash conversion", "FY2026 receivables reduced operating cash generation.", "Forecast uses normalised working capital."],
 ];
 header(summary, "C20:E20");
 summary.getRange("C21:E24").format.wrapText = true;
@@ -371,7 +523,7 @@ sources.getRange("C8:J16").values = [
   ["AVN-001", "Avon Technologies", "H1 2026 Results", "13-May-2026", "Latest Avon financials", "https://www.investegate.co.uk/announcement/rns/avon-technologies-plc--avon/interim-results/9565083", null, null],
   ["MKT-001", "Market data", "Closing-price references", "24-Sep-2026", "Screening market values", "https://stockanalysis.com/", null, null],
   ["FX-001", "Market data", "GBP/USD historical rate", "24-Sep-2026", "Avon translation", "https://www.exchangerates.org.uk/historical/GBP/24_09_2026", null, null],
-  ["Internal", "Project", "Research files 01-06", "25-Sep-2026", "Scoring rationale and target selection", "See repository research folder", null, null],
+  ["Internal", "Project", "Research files 01-07", "27-Sep-2026", "Scoring, target selection and valuation rationale", "See repository research folder", null, null],
 ];
 header(sources, "C8:J8");
 sources.getRange("C9:J16").format.wrapText = true;
@@ -382,17 +534,17 @@ sources.getRange("C21:H27").values = [
   [1, "The screening ranks the three targets using the agreed six categories.", null, null, null, "Screening"],
   [2, "Editable offer, funding, financing and synergy inputs are entered once.", null, null, null, "Assumptions"],
   [3, "The offer premium produces equity value and enterprise value.", null, null, null, "Deal"],
-  [4, "Target earnings, synergies and financing costs produce an illustrative EPS impact.", null, null, null, "Earnings"],
-  [5, "Transaction funding and target debt produce a pro forma leverage proxy.", null, null, null, "Leverage"],
-  [6, "The Summary presents the answer and the conditions that could change it.", null, null, null, "Summary"],
+  [4, "A five-year forecast produces a standalone DCF and synergy-supported price ceiling.", null, null, null, "Valuation"],
+  [5, "Target earnings, synergies and financing costs produce an illustrative EPS impact.", null, null, null, "Earnings"],
+  [6, "Transaction funding and target debt produce a pro forma leverage proxy.", null, null, null, "Leverage"],
 ];
 header(sources, "C21:H21");
 sources.getRange("C22:H27").format.wrapText = false;
 
 section(sources, "C30:H30", "Current limitations");
 sources.getRange("C31:H35").values = [
-  ["A full Cohort forecast has not yet been built.", null, null, null, null, null],
-  ["The model does not yet include a DCF, comparable-company valuation or premium analysis.", null, null, null, null, null],
+  ["The Cohort forecast is deliberately simple and is not a full three-statement model.", null, null, null, null, null],
+  ["The model includes a DCF but not yet a full comparable-company or precedent-transactions analysis.", null, null, null, null, null],
   ["Purchase accounting, acquired-intangible amortisation and detailed integration phasing are not yet included.", null, null, null, null, null],
   ["Net debt / EBIT is a leverage proxy, not the final rating-agency measure.", null, null, null, null, null],
   ["Market prices and exchange rates are point-in-time references and should be refreshed before use.", null, null, null, null, null],
@@ -401,7 +553,7 @@ sources.getRange("C31:H35").format.font = { name: fontFamily, size: 10, italic: 
 sources.getRange("C31:H35").format.wrapText = false;
 
 // Widths, row heights, freezes and tabs
-for (const sheet of [summary, assumptions, screening, deal, earnings, leverage, sources]) {
+for (const sheet of [summary, assumptions, valuation, screening, deal, earnings, leverage, sources]) {
   sheet.getRange("A:B").format.columnWidth = 3;
   sheet.getRange("C:C").format.columnWidth = 30;
   sheet.getRange("D:D").format.columnWidth = 18;
@@ -411,8 +563,16 @@ for (const sheet of [summary, assumptions, screening, deal, earnings, leverage, 
   sheet.getRange("2:4").format.rowHeight = 22;
 }
 summary.getRange("F:H").format.columnWidth = 25;
+summary.getRange("C:C").format.columnWidth = 44;
 summary.getRange("D:D").format.columnWidth = 38;
 summary.getRange("E:E").format.columnWidth = 32;
+assumptions.getRange("F:F").format.columnWidth = 42;
+assumptions.getRange("G:G").format.columnWidth = 18;
+valuation.getRange("C:C").format.columnWidth = 34;
+valuation.getRange("D:E").format.columnWidth = 16;
+valuation.getRange("F:F").format.columnWidth = 34;
+valuation.getRange("G:G").format.columnWidth = 24;
+valuation.getRange("H:I").format.columnWidth = 16;
 screening.getRange("C:C").format.columnWidth = 34;
 screening.getRange("H:H").format.columnWidth = 26;
 screening.getRange("J:J").format.columnWidth = 36;
@@ -429,10 +589,12 @@ sources.getRange("9:16").format.rowHeight = 46;
 sources.getRange("22:27").format.rowHeight = 24;
 sources.getRange("31:35").format.rowHeight = 22;
 assumptions.freezePanes.freezeRows(7);
+valuation.freezePanes.freezeRows(8);
 screening.freezePanes.freezeRows(7);
 sources.freezePanes.freezeRows(8);
 summary.tabColor = navy;
 assumptions.tabColor = "#5B9BD5";
+valuation.tabColor = "#2F75B5";
 screening.tabColor = "#4472C4";
 sources.tabColor = "#A5A5A5";
 
@@ -442,6 +604,8 @@ const summaryCheck = await wb.inspect({ kind: "table", range: "Summary!C7:H24", 
 console.log(summaryCheck.ndjson);
 const dealCheck = await wb.inspect({ kind: "table", range: "Deal!C8:G24", include: "values,formulas", tableMaxRows: 30, tableMaxCols: 8 });
 console.log(dealCheck.ndjson);
+const valuationCheck = await wb.inspect({ kind: "table", range: "Valuation!C8:I37", include: "values,formulas", tableMaxRows: 40, tableMaxCols: 8 });
+console.log(valuationCheck.ndjson);
 
 // Input-response test in memory. Restore the base case before final verification and export.
 assumptions.getRange("D21:D22").values = [[0.40], [0.80]];
@@ -451,11 +615,19 @@ console.log(responseTest.ndjson);
 assumptions.getRange("D21:D22").values = [[0.30], [0.60]];
 wb.recalculate();
 
+// Valuation input-response test. Restore the base case before final verification and export.
+assumptions.getRange("G29").values = [[0.10]];
+wb.recalculate();
+const valuationResponseTest = await wb.inspect({ kind: "table", range: "Valuation!C30:G34", include: "values,formulas", tableMaxRows: 8, tableMaxCols: 6 });
+console.log(valuationResponseTest.ndjson);
+assumptions.getRange("G29").values = [[0.09]];
+wb.recalculate();
+
 const errorCheck = await wb.inspect({ kind: "match", searchTerm: "#REF!|#DIV/0!|#VALUE!|#NAME\\?|#N/A|#NUM!|#NULL!|#SPILL!|#CALC!", options: { useRegex: true, maxResults: 300 }, summary: "final formula error scan" });
 console.log(errorCheck.ndjson);
 
 await fs.mkdir(outputDir, { recursive: true });
-for (const sheetName of ["Summary", "Assumptions", "Screening", "Deal", "Earnings", "Leverage", "Sources & Guide"]) {
+for (const sheetName of ["Summary", "Assumptions", "Valuation", "Screening", "Deal", "Earnings", "Leverage", "Sources & Guide"]) {
   const preview = await wb.render({ sheetName, autoCrop: "all", scale: 1, format: "png" });
   await fs.writeFile(`${outputDir}/${sheetName.replaceAll(" ", "_").replaceAll("&", "and")}.png`, new Uint8Array(await preview.arrayBuffer()));
 }
