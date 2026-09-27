@@ -25,6 +25,10 @@ All factual inputs used in the project must be recorded here.
 | AVN-004 | Avon Technologies | Team Wendy | Current at access date | 25 September 2026 | https://www.avon-technologiesplc.com/brands/team-wendy/ | Helmet capability mapping | Primary company source |
 | MKT-001 | Market data | Target closing share prices and market capitalisation references | 24 September 2026 | 25 September 2026 | https://stockanalysis.com/ | Screening valuation and affordability | Cross-checked against other delayed-price sources; approximate values |
 | FX-001 | Market data | GBP/USD historical exchange rate | 24 September 2026 | 25 September 2026 | https://www.exchangerates.org.uk/historical/GBP/24_09_2026 | Translation of Avon dollar financials | £1 = $1.3210 |
+| QQ-001 | QinetiQ | FY2026 Group Performance | 21 May 2026 | 27 September 2026 | https://www.qinetiq.com/en/news/fy26-group-performance | CCA operating profit and net debt | Primary company results; market capitalisation is a point-in-time market reference |
+| PTA-001 | QinetiQ | Proposed Acquisition of Avantus Federal | 5 August 2022 | 27 September 2026 | https://www.qinetiq.com/en/news/proposed-acquisition-of-avantus-federal-llc | Precedent transaction | 14.6x LTM EBITDA after adjusting for the acquired tax asset |
+| PTA-002 | BAE Systems | Proposed Acquisition of Ball Aerospace | 17 August 2023 | 27 September 2026 | https://www.baesystems.com/en/article/proposed-acquisition-of-ball-aerospace | Precedent transaction | Approximately 13x estimated 2024 EBITDA, net of tax benefit and run-rate cost synergies |
+| PTA-003 | Honeywell | Acquisition of CAES | 20 June 2024 | 27 September 2026 | https://investor.honeywell.com/news-releases/news-release-details/honeywell-acquire-caes-enhance-defense-technologies-across-land | Precedent transaction | Approximately 14x estimated 2024 EBITDA on a tax-adjusted basis |
 
 ## Source hierarchy
 
